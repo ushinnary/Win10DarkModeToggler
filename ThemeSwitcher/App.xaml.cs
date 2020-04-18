@@ -1,4 +1,5 @@
-﻿using System.Windows;
+using System.Windows;
+using ThemeSwitcher.Classes;
 
 namespace ThemeSwitcher
 {
@@ -7,5 +8,10 @@ namespace ThemeSwitcher
     /// </summary>
     public partial class App : Application
     {
+        public App()
+        {
+            var theme = new ThemeClass();
+            theme?.ToggleAutoThemeSwitcherByLight();
+        }
     }
 }

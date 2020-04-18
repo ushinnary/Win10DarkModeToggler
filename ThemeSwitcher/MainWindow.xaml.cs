@@ -21,9 +21,5 @@ namespace ThemeSwitcher
             theme.ToggleTheme();
         }
 
-        private void Button_Click_1(object sender, RoutedEventArgs e)
-        {
-            theme?.ToggleAutoThemeSwitcherByLight();
-        }
     }
 }
