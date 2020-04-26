@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeSwitcher", "ThemeSwitcher\ThemeSwitcher.csproj", "{D343C285-7745-41E5-BA1C-653EC81B945B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ThemeByLight", "ThemeByLight\ThemeByLight.csproj", "{E65A95E9-C6B8-4529-A170-E4F94F6AFDF9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,10 +11,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{D343C285-7745-41E5-BA1C-653EC81B945B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D343C285-7745-41E5-BA1C-653EC81B945B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D343C285-7745-41E5-BA1C-653EC81B945B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D343C285-7745-41E5-BA1C-653EC81B945B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E65A95E9-C6B8-4529-A170-E4F94F6AFDF9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E65A95E9-C6B8-4529-A170-E4F94F6AFDF9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E65A95E9-C6B8-4529-A170-E4F94F6AFDF9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E65A95E9-C6B8-4529-A170-E4F94F6AFDF9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

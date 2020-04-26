@@ -22,19 +22,4 @@
 			</Setter>
 		</Style>
 	</Window.Resources>
-	<Grid Margin="0,0,10,8">
-		<Button Style="{StaticResource AntdButtonPrimary}" Content="Toggle theme manually"
-                Height="26"
-                VerticalAlignment="Center" Width="148"
-                BorderThickness="1"
-                RenderTransformOrigin="0.5,0.5" Click="Button_Click">
-			<Button.RenderTransform>
-				<TransformGroup>
-					<ScaleTransform/>
-					<SkewTransform/>
-					<TranslateTransform/>
-				</TransformGroup>
-			</Button.RenderTransform>
-		</Button>
-	</Grid>
 </Window>

@@ -1,10 +1,9 @@
-using Microsoft.Win32;
 using System;
-using ThemeSwitcher.Utils;
 using Windows.Devices.Sensors;
-using Windows.Foundation;
+using Microsoft.Win32;
+using ThemeByLight.Utils;
 
-namespace ThemeSwitcher.Classes
+namespace ThemeByLight.Classes
 {
     public class ThemeClass
     {
@@ -20,7 +19,7 @@ namespace ThemeSwitcher.Classes
         private void SetWindowsVersion()
         {
             string[] versionsWithStartMenuTheme = {EnumList.WinVer1909};
-            _windowsVersion = RegistryClass.getCurrentWindowsVersion();
+            _windowsVersion = RegistryClass.GetCurrentWindowsVersion();
             _windowsVersionSupportStartMenu =
                 Array.IndexOf(versionsWithStartMenuTheme, _windowsVersion) >= 0;
         }
@@ -39,7 +38,7 @@ namespace ThemeSwitcher.Classes
                 _windowsVersion == EnumList.WinVer1903 ||
                 _windowsVersion == EnumList.WinVer1809
             )
-                key = RegistryClass.getThemeRegistryKey(true);
+                key = RegistryClass.GetThemeRegistryKey(true);
 
             return key;
         }
@@ -55,9 +54,7 @@ namespace ThemeSwitcher.Classes
 
             _lightSensor.ReportInterval = 1000;
             _lightSensor.ReadingChanged +=
-                new TypedEventHandler<LightSensor,
-                    LightSensorReadingChangedEventArgs>(
-                    LightSensor_ReadingChanged);
+                LightSensor_ReadingChanged;
         }
 
         private void LightSensor_ReadingChanged(LightSensor sender,
@@ -79,11 +76,6 @@ namespace ThemeSwitcher.Classes
                 currentThemeIsDark && !toSetDarkTheme
             )
                 SetTheme(toSetDarkTheme, true);
-        }
-
-        public void ToggleTheme()
-        {
-            SetTheme(false, false);
         }
 
         private void SetTheme(bool toSetDarkTheme, bool forceApply)
