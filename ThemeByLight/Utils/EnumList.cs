@@ -8,9 +8,15 @@ namespace ThemeByLight.Utils
         public static readonly string ThemeKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Themes\Personalize";
         public static readonly string ThemeKeyAppsThemeValue = "AppsUseLightTheme";
         public static readonly string ThemeKeySystemThemeValue = "SystemUsesLightTheme";
-                               
+
+        public static readonly string WinVer2004 = "2004";
         public static readonly string WinVer1909 = "1909";
         public static readonly string WinVer1903 = "1903";
         public static readonly string WinVer1809 = "1809";
+
+        public static readonly string[] compatibleWinVersions = new string[]
+        {
+            WinVer2004, WinVer1909, WinVer1903, WinVer1809
+        };
     }
 }
