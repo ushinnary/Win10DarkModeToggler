@@ -17,23 +17,6 @@ namespace ThemeByLight.Classes
 			SetWindowsRegistryKey();
 		}
 
-		#region PublicMethods
-		public void ToggleAutoThemeSwitcherByLight()
-		{
-			_autoLightDetectionEnabled = !_autoLightDetectionEnabled;
-		}
-
-		public void RunThemeByLightSwitcher()
-		{
-			if (_lightSensor == null) return;
-
-			_lightSensor.ReportInterval = 1000;
-			_lightSensor.ReadingChanged +=
-				LightSensor_ReadingChanged;
-		}
-		#endregion
-
-		#region PrivateMethods
 		private void SetWindowsVersion()
 		{
 			string[] versionsWithStartMenuTheme = { EnumList.WinVer1909, EnumList.WinVer2004 };
@@ -47,55 +30,56 @@ namespace ThemeByLight.Classes
 			_windowsThemeRegistryKey = GetRegistryKeyForCurrentWindowsVersion();
 		}
 
-		private RegistryKey GetRegistryKeyForCurrentWindowsVersion()
+		private RegistryKey GetRegistryKeyForCurrentWindowsVersion() => EnumList.compatibleWinVersions.Contains(_windowsVersion) ? RegistryClass.GetThemeRegistryKey(true) : null;
+
+		public void ToggleAutoThemeSwitcherByLight()
 		{
-			RegistryKey key = null;
-
-			if (EnumList.allAcceptedVersions.Contains(_windowsVersion))
-				key = RegistryClass.GetThemeRegistryKey(true);
-
-			return key;
-
+			_autoLightDetectionEnabled = !_autoLightDetectionEnabled;
 		}
-		private void LightSensor_ReadingChanged(LightSensor sender,
-			LightSensorReadingChangedEventArgs args)
+
+		public void RunThemeByLightSwitcher()
+		{
+			if (_lightSensor == null) return;
+
+			_lightSensor.ReportInterval = 500;
+			_lightSensor.ReadingChanged +=
+				LightSensor_ReadingChanged;
+		}
+
+		private void LightSensor_ReadingChanged(LightSensor sender, LightSensorReadingChangedEventArgs args)
 		{
 			if (!_autoLightDetectionEnabled)
 				return;
 
-			ushort currentLightSensorValue =
-				Convert.ToUInt16(args.Reading.IlluminanceInLux);
-			bool currentThemeIsDark =
-				Convert.ToUInt16(
-					_windowsThemeRegistryKey?.GetValue(EnumList
-						.ThemeKeyAppsThemeValue)) == 0;
+			ushort currentLightSensorValue = Convert.ToUInt16(args.Reading.IlluminanceInLux);
+			bool currentThemeIsDark = Convert.ToUInt16(_windowsThemeRegistryKey?.GetValue(EnumList.ThemeKeyAppsThemeValue)) == 0;
 			bool toSetDarkTheme = currentLightSensorValue < 20;
 
-			if (!currentThemeIsDark && toSetDarkTheme ||
+			if (
+				!currentThemeIsDark && toSetDarkTheme ||
 				currentThemeIsDark && !toSetDarkTheme
 			)
 				SetTheme(toSetDarkTheme, true);
 		}
+
 		private void SetTheme(bool toSetDarkTheme, bool forceApply)
 		{
 			RegistryKey key = GetRegistryKeyForCurrentWindowsVersion();
 
-			if (!forceApply)
-				toSetDarkTheme =
-				(int)key.GetValue(EnumList.ThemeKeyAppsThemeValue) == 1;
-
-			int themeKey = toSetDarkTheme ? 0 : 1;
-
 			if (key == null) return;
 
-			key.SetValue(EnumList.ThemeKeyAppsThemeValue, themeKey);
+			if (!forceApply)
+				toSetDarkTheme = (int)key.GetValue(EnumList.ThemeKeyAppsThemeValue) == 1;
+
+			int themeId = toSetDarkTheme ? 0 : 1;
+
+			key.SetValue(EnumList.ThemeKeyAppsThemeValue, themeId);
 
 			if (_windowsVersionSupportStartMenu)
-				key.SetValue(EnumList.ThemeKeySystemThemeValue, themeKey);
+				key.SetValue(EnumList.ThemeKeySystemThemeValue, themeId);
 
 			key.Close();
 		}
-		#endregion
 
 		#region PrivateProperties
 
@@ -105,6 +89,6 @@ namespace ThemeByLight.Classes
 		private bool _windowsVersionSupportStartMenu;
 		private RegistryKey _windowsThemeRegistryKey;
 
-		#endregion
+		#endregion PrivateProperties
 	}
 }
