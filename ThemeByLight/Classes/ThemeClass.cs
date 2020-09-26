@@ -1,112 +1,110 @@
 using System;
-using Windows.Devices.Sensors;
+using System.Linq;
 using Microsoft.Win32;
 using ThemeByLight.Utils;
+using Windows.Devices.Sensors;
 
 namespace ThemeByLight.Classes
 {
-    public class ThemeClass
-    {
-        public ThemeClass()
-        {
-            _lightSensor = LightSensor.GetDefault();
-            _autoLightDetectionEnabled = false;
+	public class ThemeClass
+	{
+		public ThemeClass()
+		{
+			_lightSensor = LightSensor.GetDefault();
+			_autoLightDetectionEnabled = false;
 
-            SetWindowsVersion();
-            SetWindowsRegistryKey();
-        }
+			SetWindowsVersion();
+			SetWindowsRegistryKey();
+		}
 
-        private void SetWindowsVersion()
-        {
-            string[] versionsWithStartMenuTheme = {EnumList.WinVer1909};
-            _windowsVersion = RegistryClass.GetCurrentWindowsVersion();
-            _windowsVersionSupportStartMenu =
-                Array.IndexOf(versionsWithStartMenuTheme, _windowsVersion) >= 0;
-        }
+		#region PublicMethods
+		public void ToggleAutoThemeSwitcherByLight()
+		{
+			_autoLightDetectionEnabled = !_autoLightDetectionEnabled;
+		}
 
-        private void SetWindowsRegistryKey()
-        {
-            _windowsThemeRegistryKey = GetRegistryKeyForCurrentWindowsVersion();
-        }
+		public void RunThemeByLightSwitcher()
+		{
+			if (_lightSensor == null) return;
 
-        private RegistryKey GetRegistryKeyForCurrentWindowsVersion()
-        {
-            RegistryKey key = null;
+			_lightSensor.ReportInterval = 1000;
+			_lightSensor.ReadingChanged +=
+				LightSensor_ReadingChanged;
+		}
+		#endregion
 
-            if (
-                _windowsVersion == EnumList.WinVer1909 ||
-                _windowsVersion == EnumList.WinVer1903 ||
-                _windowsVersion == EnumList.WinVer1809
-            )
-                key = RegistryClass.GetThemeRegistryKey(true);
+		#region PrivateMethods
+		private void SetWindowsVersion()
+		{
+			string[] versionsWithStartMenuTheme = { EnumList.WinVer1909, EnumList.WinVer2004 };
+			_windowsVersion = RegistryClass.GetCurrentWindowsVersion();
+			_windowsVersionSupportStartMenu =
+				Array.IndexOf(versionsWithStartMenuTheme, _windowsVersion) >= 0;
+		}
 
-            return key;
-        }
+		private void SetWindowsRegistryKey()
+		{
+			_windowsThemeRegistryKey = GetRegistryKeyForCurrentWindowsVersion();
+		}
 
-        public void ToggleAutoThemeSwitcherByLight()
-        {
-            _autoLightDetectionEnabled = !_autoLightDetectionEnabled;
-        }
+		private RegistryKey GetRegistryKeyForCurrentWindowsVersion()
+		{
+			RegistryKey key = null;
 
-        public void RunThemeByLightSwitcher()
-        {
-            if (_lightSensor == null) return;
+			if (EnumList.allAcceptedVersions.Contains(_windowsVersion))
+				key = RegistryClass.GetThemeRegistryKey(true);
 
-            _lightSensor.ReportInterval = 1000;
-            _lightSensor.ReadingChanged +=
-                LightSensor_ReadingChanged;
-        }
+			return key;
 
-        private void LightSensor_ReadingChanged(LightSensor sender,
-            LightSensorReadingChangedEventArgs args)
-        {
-            if (!_autoLightDetectionEnabled)
-                return;
+		}
+		private void LightSensor_ReadingChanged(LightSensor sender,
+			LightSensorReadingChangedEventArgs args)
+		{
+			if (!_autoLightDetectionEnabled)
+				return;
 
-            var currentLightSensorValue =
-                Convert.ToUInt16(args.Reading.IlluminanceInLux);
-            var currentThemeIsDark =
-                Convert.ToUInt16(
-                    _windowsThemeRegistryKey?.GetValue(EnumList
-                        .ThemeKeyAppsThemeValue)) == 0;
-            var toSetDarkTheme = currentLightSensorValue < 20;
+			ushort currentLightSensorValue =
+				Convert.ToUInt16(args.Reading.IlluminanceInLux);
+			bool currentThemeIsDark =
+				Convert.ToUInt16(
+					_windowsThemeRegistryKey?.GetValue(EnumList
+						.ThemeKeyAppsThemeValue)) == 0;
+			bool toSetDarkTheme = currentLightSensorValue < 20;
 
-            if (
-                !currentThemeIsDark && toSetDarkTheme ||
-                currentThemeIsDark && !toSetDarkTheme
-            )
-                SetTheme(toSetDarkTheme, true);
-        }
+			if (!currentThemeIsDark && toSetDarkTheme ||
+				currentThemeIsDark && !toSetDarkTheme
+			)
+				SetTheme(toSetDarkTheme, true);
+		}
+		private void SetTheme(bool toSetDarkTheme, bool forceApply)
+		{
+			RegistryKey key = GetRegistryKeyForCurrentWindowsVersion();
 
-        private void SetTheme(bool toSetDarkTheme, bool forceApply)
-        {
-            var key =
-                GetRegistryKeyForCurrentWindowsVersion();
+			if (!forceApply)
+				toSetDarkTheme =
+				(int)key.GetValue(EnumList.ThemeKeyAppsThemeValue) == 1;
 
-            if (key == null) return;
+			int themeKey = toSetDarkTheme ? 0 : 1;
 
-            if (!forceApply)
-                toSetDarkTheme =
-                    (int) key.GetValue(EnumList.ThemeKeyAppsThemeValue) == 1;
+			if (key == null) return;
 
-            key.SetValue(EnumList.ThemeKeyAppsThemeValue,
-                toSetDarkTheme ? 0 : 1);
+			key.SetValue(EnumList.ThemeKeyAppsThemeValue, themeKey);
 
-            if (_windowsVersionSupportStartMenu)
-                key.SetValue(EnumList.ThemeKeySystemThemeValue,
-                    toSetDarkTheme ? 0 : 1);
+			if (_windowsVersionSupportStartMenu)
+				key.SetValue(EnumList.ThemeKeySystemThemeValue, themeKey);
 
-            key.Close();
-        }
+			key.Close();
+		}
+		#endregion
 
-        #region PrivateProperties
+		#region PrivateProperties
 
-        private readonly LightSensor _lightSensor;
-        private bool _autoLightDetectionEnabled;
-        private string _windowsVersion;
-        private bool _windowsVersionSupportStartMenu;
-        private RegistryKey _windowsThemeRegistryKey;
+		private readonly LightSensor _lightSensor;
+		private bool _autoLightDetectionEnabled;
+		private string _windowsVersion;
+		private bool _windowsVersionSupportStartMenu;
+		private RegistryKey _windowsThemeRegistryKey;
 
-        #endregion
-    }
+		#endregion
+	}
 }
