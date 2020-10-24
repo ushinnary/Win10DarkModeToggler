@@ -4,23 +4,23 @@ using ThemeByLight.Utils;
 
 namespace ThemeByLight.Classes
 {
-	internal class RegistryClass
+	internal static class RegistryClass
 	{
-		public static RegistryKey GetThemeRegistryKey(bool rw = false)
-		{
-			return Registry.CurrentUser.OpenSubKey(EnumList.ThemeKey, rw);
-		}
-
 		public static string GetCurrentWindowsVersion()
 		{
-			RegistryKey key = Registry.LocalMachine.OpenSubKey(EnumList.WindowsVersionKey);
+			RegistryKey key = Registry.LocalMachine.OpenSubKey(WindowsRegistryKeys.WindowsVersionKey);
 
 			if (key == null)
 				return null;
 
-			string version = Convert.ToString(key.GetValue(EnumList.WindowsVersionKeyValue));
+			string version = Convert.ToString(key.GetValue(WindowsRegistryKeys.WindowsVersionKeyValue));
 			key.Close();
 			return version;
+		}
+
+		public static RegistryKey GetThemeRegistryKey(bool rw = false)
+		{
+			return Registry.CurrentUser.OpenSubKey(WindowsRegistryKeys.ThemeKey, rw);
 		}
 	}
 }
